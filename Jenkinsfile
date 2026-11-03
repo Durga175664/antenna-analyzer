@@ -4,22 +4,20 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // GitHub-la irunthu code pull panrom
                 checkout scm
             }
         }
 
         stage('Build & Test') {
             steps {
-                // Maven clean test run aagi unit tests & HTML report-a generate pannum
-                sh 'mvn clean test'
+                // Windows OS kaaga 'sh' ku badhula 'bat' use panrom
+                bat 'mvn clean test'
             }
         }
     }
 
     post {
         always {
-            // Jenkins dashboard-la HTML Report-a publish panrathu
             publishHTML([
                 allowMissing: false,
                 alwaysLinkToLastBuild: true,
