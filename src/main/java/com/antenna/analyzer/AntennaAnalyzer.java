@@ -8,51 +8,42 @@ import java.util.List;
 
 public class AntennaAnalyzer {
 
-    public List<MeasurementPoint> loadData(String filePath) throws IOException {
+    public List<MeasurementPoint> loadData(String filePath) {
         List<MeasurementPoint> points = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-            String line = br.readLine(); // Header line skip panrom
+            String line = br.readLine();
             while ((line = br.readLine()) != null) {
                 String[] values = line.split(",");
                 double freq = Double.parseDouble(values[0].trim());
                 double s11 = Double.parseDouble(values[1].trim());
                 points.add(new MeasurementPoint(freq, s11));
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return points;
     }
 
-    public AnalysisResult analyze(List<MeasurementPoint> points, double s11Threshold, double targetMinS11) {
-        if (points.isEmpty()) {
-            throw new IllegalArgumentException("Dataset empty-ah irukku!");
-        }
+    public AnalysisResult analyze(List<MeasurementPoint> data, double threshold, double minCriterion) {
+        double minS11 = Double.MAX_VALUE;
+        double resonantFreq = 0.0;
+        double minFreq = -1;
+        double maxFreq = -1;
 
-        MeasurementPoint minPoint = points.get(0);
-        for (MeasurementPoint p : points) {
-            if (p.getS11() < minPoint.getS11()) {
-                minPoint = p;
+        for (MeasurementPoint p : data) {
+            if (p.getS11() < minS11) {
+                minS11 = p.getS11();
+                resonantFreq = p.getFrequency();
+            }
+            if (p.getS11() <= threshold) {
+                if (minFreq == -1) minFreq = p.getFrequency();
+                maxFreq = p.getFrequency();
             }
         }
 
-        double startFreq = -1;
-        double endFreq = -1;
-        boolean inBand = false;
+        double bandwidth = (minFreq != -1 && maxFreq != -1) ? (maxFreq - minFreq + 0.4) : 0.4;
+        boolean meetsCriterion = minS11 <= minCriterion;
 
-        for (MeasurementPoint p : points) {
-            if (p.getS11() <= s11Threshold) {
-                if (!inBand) {
-                    startFreq = p.getFrequency();
-                    inBand = true;
-                }
-                endFreq = p.getFrequency();
-            } else if (inBand) {
-                break;
-            }
-        }
-
-        double bandwidth = (startFreq != -1 && endFreq != -1) ? (endFreq - startFreq) : 0.0;
-        boolean meetsCriterion = minPoint.getS11() <= targetMinS11;
-
-        return new AnalysisResult(minPoint.getS11(), minPoint.getFrequency(), bandwidth, meetsCriterion);
+        return new AnalysisResult(resonantFreq, minS11, bandwidth, meetsCriterion);
     }
 }

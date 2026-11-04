@@ -9,6 +9,11 @@ public class MeasurementPoint {
         this.s11 = s11;
     }
 
-    public double getFrequency() { return frequency; }
-    public double getS11() { return s11; }
+    public double getFrequency() {
+        return frequency;
+    }
+
+    public double getS11() {
+        return s11;
+    }
 }
