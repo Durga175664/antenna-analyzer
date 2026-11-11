@@ -1,3 +1,9 @@
 com\antenna\analyzer\AntennaAnalyzer.class
+com\antenna\analysis\AntennaAnalyzer.class
+com\antenna\Main.class
+com\antenna\model\AnalysisResult.class
 com\antenna\analyzer\AnalysisResult.class
+com\antenna\report\HtmlReportGenerator.class
+com\antenna\model\DataPoint.class
 com\antenna\analyzer\MeasurementPoint.class
+com\antenna\io\CsvDataLoader.class
